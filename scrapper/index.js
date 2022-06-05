@@ -1,59 +1,28 @@
-const axios = require("axios");
-const cherio = require("cherio");
-const fs = require("fs");
+const fs = require('fs')
+const { weatherParser } = require('./weatherParser.js')
+const { WEATHER_URL, FILE_DESTINATION, FOLDER } = require('./constants.js')
 
-const url =
-  "https://weather.com/en-GB/weather/today/l/458e68cf9072ee1bfabbfb406893a31efa89128c2a3e9a7e36b0c9c5e3913c9d";
-const dir = "./weatherData";
-const file = `./${dir}/ternopilDailyForecast.json`;
-
-const getWeather = async () => {
+const saveWeatherData = async () => {
   try {
-    const { data } = await axios.get(url);
+    const dailyWeather = await weatherParser(WEATHER_URL)
 
-    const $ = cherio.load(data);
-    let dailyWeather = [];
-    const elemSelector = ".DailyWeatherCard--TableWrapper--3mjsg li";
-    $(elemSelector).each((idx, element) => {
-      const day = $(element)
-        .find(".Column--label--3QyFS.Column--small--3yLq9")
-        .text();
-      const minTemp = $(element)
-        .find(".Column--tempLo--1GNnT")
-        .text()
-        .replace(/[^0-9]/g, "");
-      const maxTemp = $(element)
-        .find(".Column--temp--5hqI_")
-        .text()
-        .replace(/[^0-9]/g, "");
-      const rainChance = $(element)
-        .find(".Column--precip--2ck8J")
-        .contents()
-        .last()
-        .text()
-        .replace(/[^0-9]/g, "");
+    let json = JSON.stringify(dailyWeather)
 
-      const weather = {
-        day,
-        minTemp: +minTemp,
-        maxTemp: +maxTemp,
-        rainChance: +rainChance,
-      };
-
-      dailyWeather.push(weather);
-    });
-
-    const json = JSON.stringify(dailyWeather);
-
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
+    if (!fs.existsSync(FOLDER)) {
+      fs.mkdirSync(FOLDER)
+    } else {
+      const oldFile = fs.readFileSync(FILE_DESTINATION)
+      const oldWeather = JSON.parse(oldFile)
+      const newWeather = [...oldWeather, ...dailyWeather]
+      json = JSON.stringify(newWeather)
     }
-    fs.writeFile(file, json, err => {
-      if (err) throw err;
-      console.log("File saved");
-    });
+    fs.writeFile(FILE_DESTINATION, json, err => {
+      if (err) throw err
+      console.log('File saved')
+    })
   } catch (error) {
-    console.log(error);
+    console.log(error)
   }
-};
-getWeather();
+}
+
+saveWeatherData()
