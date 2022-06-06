@@ -1,27 +1,29 @@
-const sharp = require('sharp')
+const { exec } = require('child_process')
 const path = require('path')
 
 const folder = 'img'
 const inputFile = `./${folder}/avatar.jpg`
 
 const resizeImage = (image, options) => {
-  const extension = path.extname(image)
-  const imageName = path.basename(image, extension)
+  const imageExtension = path.extname(image)
+  const imageName = path.basename(image, imageExtension)
   const { width, height } = options
 
   if (!width || !height) {
     throw new Error('Width and height are required')
   }
 
-  sharp(image)
-    .resize(options)
-    .toFile(`${folder}/${imageName}_${width}_${height}${extension}`)
-    .then(() => {
-      console.log('New file created')
-    })
-    .catch(function (err) {
-      console.log(`Error occurred: ${err}`)
-    })
+  const size = `${width}x${height}`
+  const command = `magick ${inputFile} -resize ${size} ./${folder}/${imageName}_${size}${imageExtension}`
+
+  exec(command, error => {
+    if (error) {
+      console.log(`error: ${error.message}`)
+      return
+    }
+
+    console.log('File saved')
+  })
 }
 
-resizeImage(inputFile, { width: 36, height: 36 })
+resizeImage(inputFile, { width: 100, height: 100 })
