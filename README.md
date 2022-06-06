@@ -10,21 +10,21 @@ Posts
 @access Public
 
 @desc Get single post
-@route GET /api/post/:id
+@route GET /api/post/:postId
 @access Public
 
 @desc Create single post
-@route POST /api/post/create
+@route POST /api/post
 @access Private
 @body title, content, thumbnail
 
 @desc Update post
-@route PUT /api/post/:id
+@route PUT /api/post/:postId
 @access Private
 @body title, content, thumbnail
 
 @desc Delete post
-@route DELETE /api/post/:id
+@route DELETE /api/post/:postId
 @access Private
 
 ```
@@ -49,17 +49,17 @@ Comments
 @access Public
 
 @desc Post comment to post
-@route POST /api/posts/:id/comments
+@route POST /api/posts/:postId/comments
 @access Private
 @body text
 
 @desc Update comment
-@route PUT /api/posts/:id/comments
+@route PUT /api/posts/:postId/comment/:commentId
 @access Private
 @body text
 
 @desc Remove comment
-@route DELETE /api/posts/:id/comments
+@route DELETE /api/posts/:postId/comment/:commentId
 @access Private
 
 ```
